@@ -7,13 +7,12 @@
 #include "MyTestObject.h"
 
 class testApp : public ofBaseApp {
-	
+    
 public:
-	
-	MyTestObject obj;
-	void setup();
+    
+    MyTestObject obj;
+    void setup();
     void draw();
 };
 
 #endif
-

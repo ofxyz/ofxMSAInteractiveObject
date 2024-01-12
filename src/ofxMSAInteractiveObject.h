@@ -18,6 +18,7 @@ class ofxMSAInteractiveObject : public ofRectangle {
 public:
     bool        enabled;                // set this to false to temporarily disable all events
     bool        verbose;
+    bool        draggable;              // Can object be dragged
 
     ofxMSAInteractiveObject();          // constructor
     virtual ~ofxMSAInteractiveObject(); // destructor
@@ -34,13 +35,17 @@ public:
     void enableAppEvents();             // call this if object should update/draw automatically    (default)
     void disableAppEvents();            // call this if object doesn't need to update/draw automatically
 
+	void enableDragging();             // enable object dragging
+	void disableDragging();            // disable object dragging
+
 //    void setPosition(float _x, float _y);    // replaced with ofRectangle::setPosition
-//    void setSize(float _w, float _h);    // replaced with ofRectangle::setSize
-//    void setPosAndSize(float _x, float _y, float _w, float _h);        // replaced with ofRectangle::set
+//    void setSize(float _w, float _h);        // replaced with ofRectangle::setSize
+//    void setPosAndSize(float _x, float _y, float _w, float _h);  // replaced with ofRectangle::set
 
     bool isMouseOver() const;                        // returns true if mouse is over object (based on position and size)
     bool isMousePressed(int mouseButton=0) const;    // returns true if mouse button is down and was pressed over object (based on position and size)    
-    
+    bool isObjectDragged();                          // returns true if object is being dragged
+
     int  getRelMouseX() const;                       // returns mouse X (in relative screen coordinates) for actual mouse x use ofGetMouseX
     int  getRelMouseY() const;                       // returns mouse Y (in relative screen coordinates) for actual mouse y use ofGetMouseY
 
@@ -64,8 +69,8 @@ public:
     virtual void onPressOutside(int x, int y, int button) {}    // called when mouse presses while outside object
     virtual void onRelease(int x, int y, int button) {}         // called when mouse releases while over object
     virtual void onReleaseOutside(int x, int y, int button) {}  // called when mouse releases outside of object after being pressed on object
-    virtual void onKeyPress(int key) {}                         // called when keypressed while mouse over the object
-    virtual void onKeyRelease(int key) {}                        // called when keyreleased while mouse over the object
+    virtual void onKeyPress(int key) {}                         // called when key pressed while mouse over the object
+    virtual void onKeyRelease(int key) {}                       // called when key released while mouse over the object
     
     
     // these are called when the relevant event occurs without caring where it actually happened
@@ -75,8 +80,8 @@ public:
     virtual void mouseDragged(int x, int y, int button) {}       // called when mouse dragged anywhere
     virtual void mouseReleased(int x, int y, int button) {}      // called when mouse released anywhere
     
-    virtual void keyPressed(int key) {}                          // called when keypressed anywhere
-    virtual void keyReleased(int key) {}                         // called when keyreleased anywhere
+    virtual void keyPressed(int key) {}                          // called when key pressed anywhere
+    virtual void keyReleased(int key) {}                         // called when key released anywhere
 
 
     // you shouldn't need access to any of these unless you know what you are doing
@@ -95,9 +100,9 @@ public:
     void _keyReleased(ofKeyEventArgs &e);
 
 private:
+    bool                 _isDragged;         // Is object being dragged
     bool                 _isMouseOver;       // is mouse over the rect
     std::map<int, bool>  _isMousePressed;    // is mouse down over the rect (for any given mouse button)
-    unsigned long _stateChangeTimestampMillis;
-    ofRectangle oldRect;
+    unsigned long        _stateChangeTimestampMillis;
+	glm::vec2            _dragOrigin;
 };
-

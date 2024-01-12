@@ -14,11 +14,12 @@
 
 //--------------------------------------------------------------
 ofxMSAInteractiveObject::ofxMSAInteractiveObject() {
-    _isMouseOver = false;
     enabled      = true;
     verbose      = false;
+    _isMouseOver = false;
+    _isDragged   = false;
     _stateChangeTimestampMillis = 0;
-    
+
     enableAppEvents();
     disableMouseEvents();
     disableKeyEvents();
@@ -88,6 +89,14 @@ void ofxMSAInteractiveObject::disableAppEvents() {
     ofRemoveListener(ofEvents().exit, this, &ofxMSAInteractiveObject::_exit);
 }
 
+void ofxMSAInteractiveObject::enableDragging() {
+    draggable = true;
+}
+
+void ofxMSAInteractiveObject::disableDragging() {
+    draggable = false;
+}
+
 //--------------------------------------------------------------
 //void ofxMSAInteractiveObject::setPosition(float _x, float _y) {
 //    x = _x;
@@ -115,6 +124,10 @@ bool ofxMSAInteractiveObject::isMouseOver() const {
 bool ofxMSAInteractiveObject::isMousePressed(int mouseButton) const {
     if(_isMousePressed.find(mouseButton) == _isMousePressed.end()) return false;
     return _isMousePressed.at(mouseButton);
+}
+
+bool ofxMSAInteractiveObject::isObjectDragged() {
+    return _isDragged;
 }
 
 //--------------------------------------------------------------
@@ -146,18 +159,7 @@ void ofxMSAInteractiveObject::_setup(ofEventArgs &e) {
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::_update(ofEventArgs &e) {
     if(!enabled) return;
-
-    // check to see if object has moved, and if so update mouse events
-//    if(oldRect.x != this->x || oldRect.y != this->y || oldRect.width != this->width ||oldRect.height != this->height) {
-//        ofMouseEventArgs e;
-//        e.button = _mouseButton;
-//        e.x = _mouseX;
-//        e.y = _mouseY;
-//        if(_isMousePressed) _mouseDragged(e);
-//        else _mouseMoved(e);
-//        
-//        oldRect =  (ofRectangle) (*this);
-//    }
+    if(draggable && _isDragged) setPosition(ofGetMouseX() - _dragOrigin.x, ofGetMouseY() - _dragOrigin.y);
     update();
 }
 
@@ -173,7 +175,6 @@ void ofxMSAInteractiveObject::_exit(ofEventArgs &e) {
     exit();
 }
 
-
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::_mouseMoved(ofMouseEventArgs &e) {
     int x = e.x;
@@ -181,9 +182,6 @@ void ofxMSAInteractiveObject::_mouseMoved(ofMouseEventArgs &e) {
     int button = e.button;
     if(verbose) printf("ofxMSAInteractiveObject::_mouseMoved(x: %i, y: %i)\n", x, y);
     if(!enabled) return;
-
-//    _mouseX = x;
-//    _mouseY = y;
     
     if(hitTest(x, y)) {                // if mouse is over the object
         if(!_isMouseOver) {            // if wasn't over previous frame
@@ -191,12 +189,12 @@ void ofxMSAInteractiveObject::_mouseMoved(ofMouseEventArgs &e) {
             onRollOver(x, y);          // call onRollOver
         }
         onMouseMove(x, y);             // and trigger onMouseMove
+        _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
     } else if(_isMouseOver) {          // if mouse is not over the object, but the flag is true (From previous frame)
         onRollOut();                   // call onRollOut
+        _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
         _isMouseOver = false;          // update flag
     }
-    
-    _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
 
     mouseMoved(x, y);
 }
@@ -218,15 +216,22 @@ void ofxMSAInteractiveObject::_mousePressed(ofMouseEventArgs &e) {
         if(!isMousePressed(button)) {       // if wasn't down previous frame
             _isMousePressed[button] = true; // update flag
             onPress(x, y, button);          // call onPress
+
+			if (draggable) {                // 
+				_dragOrigin.x = getRelMouseX();
+				_dragOrigin.y = getRelMouseY();
+				_isDragged = true;
+			}
+
+            _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
         }
     } else {                                // if mouse is not over
         _isMousePressed[button] = false;    // update flag
         onPressOutside(x, y, button);
     }
-    
-    _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
 
     mousePressed(x, y, button);
+
 }
 
 //--------------------------------------------------------------
@@ -246,12 +251,14 @@ void ofxMSAInteractiveObject::_mouseDragged(ofMouseEventArgs &e) {
             //onPress(x, y);           // call onPress - maybe not
             _isMouseOver = true;       // update flag
             onRollOver(x, y);          // call onRollOver
+            _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
         }
         onDragOver(x, y, button);      // and trigger onDragOver
     } else {
         if(_isMouseOver) {             // if mouse is not over the object, but the flag is true (From previous frame)
             onRollOut();               // call onRollOut call onDragOut?
             _isMouseOver = false;      // update flag
+            _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
         }
         if(isMousePressed(button)) {
             onDragOutside(x, y, button);
@@ -259,8 +266,6 @@ void ofxMSAInteractiveObject::_mouseDragged(ofMouseEventArgs &e) {
         _isMousePressed[button] = false;
     }
     
-    _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
-
     mouseDragged(x, y, button);
 }
 
@@ -278,16 +283,16 @@ void ofxMSAInteractiveObject::_mouseReleased(ofMouseEventArgs &e) {
     
     if(hitTest(x, y)) {
         onRelease(x, y, button);
+        _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
     } else {
         if(isMousePressed(button)) onReleaseOutside(x, y, button);
     }
-    _isMousePressed[button] = false;
 
-    _stateChangeTimestampMillis = ofGetElapsedTimeMillis();
-    
+    _isMousePressed[button] = false;
+    _isDragged = false;
+
     mouseReleased(x, y, button);
 }
-
 
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::_keyPressed(ofKeyEventArgs &e) {
@@ -297,7 +302,6 @@ void ofxMSAInteractiveObject::_keyPressed(ofKeyEventArgs &e) {
     if(isMouseOver()) onKeyPress(key);
     keyPressed(key);
 }
-
 
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::_keyReleased(ofKeyEventArgs &e) {

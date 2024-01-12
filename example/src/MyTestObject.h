@@ -13,30 +13,24 @@
 
 class MyTestObject : public ofxMSAInteractiveObject {
 public:
-    bool isDragged;
-    glm::vec2 dragPoint;
 
     void setup() {
-        printf("MyTestObject::setup() - hello!\n");
         enableMouseEvents();
         enableKeyEvents();
-        isDragged = false;
+        enableDragging();
     }
-    
+
     void exit() {
         printf("MyTestObject::exit() - goodbye!\n");
     }
     
-    
     void update() {
-        if (isDragged) setPosition(ofGetMouseX() - dragPoint.x, ofGetMouseY() - dragPoint.y);
     }
 
     void draw() {
-        if (isMousePressed() || isDragged) ofSetHexColor(DOWN_COLOR);
+        if (isMousePressed() || isObjectDragged()) ofSetHexColor(DOWN_COLOR);
         else if (isMouseOver()) ofSetHexColor(OVER_COLOR);
-        else ofSetHexColor(IDLE_COLOR);
-        
+        else ofSetHexColor(IDLE_COLOR);    
         ofRect(x, y, width, height);
     }
 
@@ -62,21 +56,14 @@ public:
     
     virtual void onPress(int x, int y, int button) {
         printf("MyTestObject::onPress(x: %i, y: %i, button: %i)\n", x, y, button);
-        dragPoint.x = getRelMouseX();
-        dragPoint.y = getRelMouseY();
-        isDragged = true;
     }
     
     virtual void onRelease(int x, int y, int button) {
         printf("MyTestObject::onRelease(x: %i, y: %i, button: %i)\n", x, y, button);
-        //if (isDragged) setPosition(x-dragPoint.x, y-dragPoint.y);
-        isDragged = false;
     }
     
     virtual void onReleaseOutside(int x, int y, int button) {
         printf("MyTestObject::onReleaseOutside(x: %i, y: %i, button: %i)\n", x, y, button);
-		//if (isDragged) setPosition(x - dragPoint.x, y - dragPoint.y);
-		isDragged = false;
     }
 
     virtual void keyPressed(int key) {

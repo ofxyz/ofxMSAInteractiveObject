@@ -10,7 +10,8 @@ class testApp : public ofBaseApp {
     
 public:
     
-    MyTestObject obj;
+    MyTestObject obj1;
+    MyTestObject obj2;
     void setup();
     void draw();
 };

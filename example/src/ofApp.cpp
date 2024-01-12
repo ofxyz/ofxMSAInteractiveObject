@@ -1,19 +1,26 @@
 #include "ofApp.h"
 
 void testApp::setup() {
-    ofSetFrameRate(30);
-    obj.set(300, 50, 100, 200);
+    //ofSetFrameRate(30);
+    obj1.set(200, 150, 50, 50);
+    obj2.set(300, 150, 50, 50);
 }
 
 void testApp::draw() {
     stringstream s;
-    s << "oF version: " << ofGetVersionInfo() << endl;
-    s << "isMouseOver: " << obj.isMouseOver() << endl;
-    s << "isMousePressed(0): " << obj.isMousePressed(0) << endl;
-    s << "isMousePressed(1): " << obj.isMousePressed(1) << endl;
-    s << "isMousePressed(2): " << obj.isMousePressed(2) << endl;
-    s << "getStateChangeMillis(): " << obj.getStateChangeMillis() << endl;
-    s << "FPS: " << ofGetFrameRate() << endl;
+    s << "obj1 isMouseOver: " << obj1.isMouseOver() << endl;
+    s << "obj1 isMousePressed(0): " << obj1.isMousePressed(0) << endl;
+    s << "obj1 isMousePressed(1): " << obj1.isMousePressed(1) << endl;
+    s << "obj1 isMousePressed(2): " << obj1.isMousePressed(2) << endl;
+    s << "obj1 getStateChangeMillis(): " << obj1.getStateChangeMillis() << endl;
+    s << "-------------------------------------------------" << endl;
+    s << "obj2 isMouseOver: " << obj2.isMouseOver() << endl;
+    s << "obj2 isMousePressed(0): " << obj2.isMousePressed(0) << endl;
+    s << "obj2 isMousePressed(1): " << obj2.isMousePressed(1) << endl;
+    s << "obj2 isMousePressed(2): " << obj2.isMousePressed(2) << endl;
+    s << "obj2 getStateChangeMillis(): " << obj2.getStateChangeMillis() << endl;
+    s << "-------------------------------------------------" << endl;
+    s << "V: " << ofGetVersionInfo() << " FPS: " << (int)ofGetFrameRate() << endl;
     
     ofSetColor(0);
     ofDrawBitmapString(s.str(), 10, 30);

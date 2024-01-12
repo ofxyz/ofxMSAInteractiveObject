@@ -31,7 +31,12 @@ public:
         if (isMousePressed() || isObjectDragged()) ofSetHexColor(DOWN_COLOR);
         else if (isMouseOver()) ofSetHexColor(OVER_COLOR);
         else ofSetHexColor(IDLE_COLOR);    
-        ofRect(x, y, width, height);
+    
+        if (_img.isAllocated()) {
+            _img.draw(x, y, width, height);
+        } else {
+            ofDrawRectangle(x, y, width, height);
+        }
     }
 
     virtual void onRollOver(int x, int y) {

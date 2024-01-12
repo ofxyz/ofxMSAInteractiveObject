@@ -30,6 +30,12 @@ ofxMSAInteractiveObject::~ofxMSAInteractiveObject() {
     disableAllEvents();
 }
 
+void ofxMSAInteractiveObject::setImage(std::string imgPath)
+{
+    _img.load(imgPath);
+    set(x,y, _img.getWidth(), _img.getHeight());
+}
+
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::enableAllEvents() {
     enableMouseEvents();
@@ -147,7 +153,19 @@ unsigned long ofxMSAInteractiveObject::getStateChangeMillis() const {
 
 //--------------------------------------------------------------
 bool ofxMSAInteractiveObject::hitTest(int tx, int ty) const {
-    return ((tx > x) && (tx < x + width) && (ty > y) && (ty < y + height));
+    if (_img.isAllocated() && _img.getImageType() == OF_IMAGE_COLOR_ALPHA) {
+        // Now we can check the alpha
+        if (((tx > x) && (tx < x + width) && (ty > y) && (ty < y + height))) {
+            return (_img.getColor(tx - x, ty - y).a == 0) ? false : true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return ((tx > x) && (tx < x + width) && (ty > y) && (ty < y + height));
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -198,7 +216,6 @@ void ofxMSAInteractiveObject::_mouseMoved(ofMouseEventArgs &e) {
 
     mouseMoved(x, y);
 }
-
 
 //--------------------------------------------------------------
 void ofxMSAInteractiveObject::_mousePressed(ofMouseEventArgs &e) {

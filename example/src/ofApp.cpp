@@ -3,6 +3,7 @@
 void testApp::setup() {
     //ofSetFrameRate(30);
     obj1.set(200, 150, 50, 50);
+    obj1.setImage("tritest.png");
     obj2.set(300, 150, 50, 50);
 }
 
@@ -24,4 +25,5 @@ void testApp::draw() {
     
     ofSetColor(0);
     ofDrawBitmapString(s.str(), 10, 30);
+    ofSetColor(255);
 }

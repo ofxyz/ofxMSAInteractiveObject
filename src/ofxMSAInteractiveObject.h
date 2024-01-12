@@ -16,12 +16,14 @@
 
 class ofxMSAInteractiveObject : public ofRectangle {
 public:
-    bool        enabled;                // set this to false to temporarily disable all events
-    bool        verbose;
-    bool        draggable;              // Can object be dragged
+    bool enabled;   // set this to false to temporarily disable all events
+    bool verbose;
+    bool draggable; // Can object be dragged
 
     ofxMSAInteractiveObject();          // constructor
     virtual ~ofxMSAInteractiveObject(); // destructor
+
+    void setImage(std::string imgPath);
 
     void enableAllEvents();             // enable all event callbacks
     void disableAllEvents();            // disable all event callbacks
@@ -98,6 +100,8 @@ public:
 
     void _keyPressed(ofKeyEventArgs &e);
     void _keyReleased(ofKeyEventArgs &e);
+
+    ofImage _img;
 
 private:
     bool                 _isDragged;         // Is object being dragged
